@@ -84,7 +84,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
   // depth of window relative to start
   int depth_z = 0;
 
-  int total = dims[0]*dims[1]*dims[2];
+  int total = (dims[0]-2*R)*(dims[1]-2*R)*(dims[2]-2*R);
   int iteration = 0;
   for(;;){
     // dprint("(%d %d %d %d);",x,y,z,ind);
@@ -107,7 +107,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
     // verbose = 0;
 
     // dprint("(%d %d %d %d);",x,y,z,ind);
-    if(++iteration%1000 == 0){
+    if(++iteration%10 == 0){
       printf("Done: %d %.5f\n", iteration, (float)((float)iteration/total));
       // ++ind;
       // continue;
@@ -224,7 +224,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
           
           // dprint("set window[%d] = frame[%d]\n",to_ind, fr_ind);
           // vvvv
-          // window[to_ind] = (frame+fr_ind);
+          window[to_ind] = (frame+fr_ind);
           
           // push the tree down to the next level
           // if it is not already in sync.

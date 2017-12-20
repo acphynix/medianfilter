@@ -74,10 +74,10 @@ int main() {
 
   // int median = full_median<7>(trees);
 
-  int dims[3] = {50,50,50};
+  int dims[3] = {30,30,30};
   int fmin[3] = {0,0,0};
-  int fsiz[3] = {50,50,50};
-  int fmax[3] = {50,50,50};
+  int fsiz[3] = {30,30,30};
+  int fmax[3] = {30,30,30};
   int *data = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
   int * out = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
 
@@ -93,7 +93,7 @@ int main() {
 
   // print(data,dims);
 
-  median_filter_3D<3>(data, dims, out, fmin, fsiz, fmax);
+  median_filter_3D<7>(data, dims, out, fmin, fsiz, fmax);
 
   printf("done.\n");
   // print(out, dims);

@@ -7,6 +7,8 @@
 #include "misc.h"
 #include "stack.h"
 
+#include "minmaxheap.h"
+
 #include <vector>
 #include <stdarg.h>
 using std::vector;
@@ -100,6 +102,8 @@ RBRNode* TreeSuccessor(RBRTree*,RBRNode*);
 
 template<int N>
 int full_median(std::vector<RBRTree*> &trees){
+
+  static const MMHeap medians(N);
 
   // verbose = vb;
   // properties of type RBRNode
