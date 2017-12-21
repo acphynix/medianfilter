@@ -1,0 +1,3 @@
+Making all of the RBRTrees exist in contiguous memory:
+  . reduced time by 3 seconds on a 100x100x100 grid.
+

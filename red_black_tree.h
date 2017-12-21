@@ -8,6 +8,7 @@
 #include "stack.h"
 
 #include "minmaxheap.h"
+#include <limits.h>
 
 #include <vector>
 #include <stdarg.h>
@@ -103,7 +104,10 @@ RBRNode* TreeSuccessor(RBRTree*,RBRNode*);
 template<int N>
 int full_median(std::vector<RBRTree*> &trees){
 
-  static const MMHeap medians(N);
+  static MHeap medians_lo(N);
+  static MHeap medians_up(N);
+  medians_lo.reset();
+  medians_up.reset();
 
   // verbose = vb;
   // properties of type RBRNode
@@ -136,12 +140,16 @@ int full_median(std::vector<RBRTree*> &trees){
     p[i][medianlo]  = TreePredecessor(trees[i],p[i][medianup]);
     p[i][rangelow]  = trees[i]->min;
     p[i][rangehigh] = trees[i]->max;
+
+    medians_lo.min_insert(MHNode{i,p[i][medianlo]->key});
+    medians_up.max_insert(MHNode{i,p[i][medianup]->key});
   }
   // while we have >2 trees...
   int itr = 0;
   for(;;){
     // find the minimum and maximum medians.
     int i=0;
+    /*
     while(!v[i][alive])++i;
     medmin  = medmin_alt  = p[i][medianlo];
     medmax  = medmax_alt  = p[i][medianup];
@@ -181,46 +189,64 @@ int full_median(std::vector<RBRTree*> &trees){
         medmaxi = medmax_alti;
       }
     }
+    */
+
+    medmini = medians_lo.head()->k;
+    medmaxi = medians_up.head()->k;
+
+    if(medmini == medmaxi){
+      MHNode *low_second, *high_second;
+      if((low_second = medians_lo.min_second())->v == p[medmini][medianlo]->key){
+        medmini = low_second->k;
+      }else if((low_second = medians_lo.max_second())->v == p[medmini][medianup]->key){
+        medmaxi = high_second->k;
+      }
+    }
 
     // dprint debug info.
 
-    // bool on = false;
-    // for(int i=0;i<N;++i){
-    //   RBRNode *cur = trees[i]->min;
-    //   char flair = 'v';
-    //   if (i == medmini && i == medmaxi)dprint(" xxx ");
-    //   else if(i == medmini)dprint(" <<< ");
-    //   else if (i==medmaxi)dprint(" >>> ");
-    //   else dprint("     ");
-    //   for(;;){
-    //     if(cur == p[i][rangelow]){
-    //       on = true;
-    //     }
-    //     if(!v[i][alive]){
-    //       on = false;
-    //     }
-    //     if      (cur == p[i][medianup]) flair = '|';
-    //     else if (cur == p[i][medianlo]) flair = '|';
-    //     else                    flair=' ';
-    //     if(on)dprint("%c%4d%c", flair, cur->key, flair);
-    //     else  dprint("      ");
-    //     // for(int i=0,j=0;i<100000000;++i)j=j*i;
-    //     if(cur == p[i][rangehigh]){
-    //       on = false;
-    //     }
-    //     if(cur == trees[i]->max)break;
-    //     cur = cur->succ(1);
-    //   }
-    //   if (i == medmini && i == medmaxi)dprint(" xxx ");
-    //   else if(i == medmini)dprint(" <<< ");
-    //   else if (i==medmaxi)dprint(" >>> ");
-    //   else dprint("     ");
+    bool on = false;
+    for(int i=0;i<N;++i){
+      RBRNode *cur = trees[i]->min;
+      char flair = 'v';
+      if (i == medmini && i == medmaxi)dprint(" xxx ");
+      else if(i == medmini)dprint(" <<< ");
+      else if (i==medmaxi)dprint(" >>> ");
+      else dprint("     ");
+      for(;;){
+        if(cur == p[i][rangelow]){
+          on = true;
+        }
+        if(!v[i][alive]){
+          on = false;
+        }
+        if      (cur == p[i][medianup]) flair = '|';
+        else if (cur == p[i][medianlo]) flair = '|';
+        else                    flair=' ';
+        if(on)dprint("%c%4d%c", flair, cur->key, flair);
+        else  dprint("      ");
+        // for(int i=0,j=0;i<100000000;++i)j=j*i;
+        if(cur == p[i][rangehigh]){
+          on = false;
+        }
+        if(cur == trees[i]->max)break;
+        cur = cur->succ(1);
+      }
+      if (i == medmini && i == medmaxi)dprint(" xxx ");
+      else if(i == medmini)dprint(" <<< ");
+      else if (i==medmaxi)dprint(" >>> ");
+      else dprint("     ");
 
-    //   if(!v[i][alive])dprint("   DEAD %d", v[i][size]);
-    //   else dprint("        %d", v[i][size]);
+      if(!v[i][alive])dprint("   DEAD %d", v[i][size]);
+      else dprint("        %d", v[i][size]);
 
-    //   dprint("\n");
-    // }
+      dprint("\n");
+    }
+
+    medians_lo.print();
+    printf("\n");
+    medians_up.print();
+    printf("\n");
 
     // delete the same number of elements from both arrays,
     // delete elements e, e > medmax OR e < medmin.
@@ -264,6 +290,7 @@ int full_median(std::vector<RBRTree*> &trees){
     p[medmaxi][medianlo]    = p[medmaxi][medianlo]->succ(-cut/2 + medadjmax);
     p[medmaxi][medianup]    = p[medmaxi][medianlo]->succ(1);
 
+
     // dprint("move medmin by %d\n", cut/2  + medadjmin);
     // dprint("move medmax by %d\n", -cut/2  + medadjmax);
 
@@ -273,15 +300,21 @@ int full_median(std::vector<RBRTree*> &trees){
     if(v[medmini][alive] && v[medmini][size]<=0){
       v[medmini][alive] = 0;
       --ct;
+      medians_lo.min_replace(MHNode{medmini, INT_MAX});
+    }else{
+      medians_lo.min_replace(MHNode{medmini, p[medmini][medianlo]->key});
     }
     if(v[medmaxi][alive] && v[medmaxi][size]<=0){
       v[medmaxi][alive] = 0;
       --ct;
+      medians_up.max_replace(MHNode{medmaxi, INT_MIN});
+    }else{
+      medians_up.max_replace(MHNode{medmaxi, p[medmaxi][medianup]->key});
     }
     if(ct <= 0){
       return p[medmini][medianlo]->key;
     }
-    // dprint("\n\n");
+    dprint("\n\n");
   }
   for(int i=0;i<N;++i){
     if( v[i][alive] ){

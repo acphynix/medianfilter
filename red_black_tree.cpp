@@ -35,14 +35,14 @@ static void InorderTreePrint(RBRTree* tree, RBRNode* x);
 
 int verbose = 1;
 inline int dprint(const char *format, ...){
-  return 0;
+  // return 0;
   // if(!verbose)return 0;
-  // va_list args;
-  // va_start(args, format);
+  va_list args;
+  va_start(args, format);
 
-  // vprintf(format, args);
+  vprintf(format, args);
 
-  // va_end(args);
+  va_end(args);
 }
 
 RBRNode::RBRNode(){

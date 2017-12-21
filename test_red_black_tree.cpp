@@ -38,18 +38,18 @@ int main() {
   // tree->printall();
 
 
-  // std::vector<RBRTree*> trees;
-  // for(int i=0;i<7;++i)
-  // trees.push_back(new RBRTree(7));
-  // for(int i=0,j=0,k=0;i<7;i++,j+=2,k+=3){
-  //   trees[0]->insert(i*i);
-  //   trees[1]->insert(i*j);
-  //   trees[2]->insert(j*k+1);
-  //   trees[3]->insert(i*i+2);
-  //   trees[4]->insert(i*j+3);
-  //   trees[5]->insert(j*k+4);
-  //   trees[6]->insert(i*j+5);
-  // }
+  std::vector<RBRTree*> trees;
+  for(int i=0;i<7;++i)
+  trees.push_back(new RBRTree(7, new RBRNode[7+3]));
+  for(int i=0,j=0,k=0;i<7;i++,j+=2,k+=3){
+    trees[0]->insert(i*i);
+    trees[1]->insert(i*j);
+    trees[2]->insert(j*k+1);
+    trees[3]->insert(i*i+2);
+    trees[4]->insert(i*j+3);
+    trees[5]->insert(j*k+4);
+    trees[6]->insert(i*j+5);
+  }
   // for(int i=0;i<trees.size();i++){
   //   trees[i]->printall();
   //   printf("\n");
@@ -72,7 +72,7 @@ int main() {
 
   // return 1;
 
-  // int median = full_median<7>(trees);
+  int median = full_median<7>(trees);
 
   int dims[3] = {30,30,30};
   int fmin[3] = {0,0,0};
@@ -89,11 +89,33 @@ int main() {
       }
     }
   }
+
+  // int s = 9;
+  // MHeap heap(s);
+  // for(int i=0;i<s;i++){
+  //   MHNode n{i,(i*4)%11};
+  //   // printf("adding %d, %d\n", n.k, n.v);
+  //   // heap.data[i] = n;
+  //   heap.min_insert(n);
+  //   // heap.print();
+  //   // printf("\n");
+  // }
+  // heap.print();
+  // printf("\n");
+  // for(int i=0;i<s;++i){
+  //   MHNode n{i,(i*4)%11};
+  //   printf("replace %d\n", n.v);
+  //   // heap.data[i] = n;
+  //   heap.min_replace(n);
+  //   heap.print();
+  //   printf("\n");
+  // }
+
   printf("go!\n");
 
   // print(data,dims);
 
-  median_filter_3D<7>(data, dims, out, fmin, fsiz, fmax);
+  // median_filter_3D<7>(data, dims, out, fmin, fsiz, fmax);
 
   printf("done.\n");
   // print(out, dims);
