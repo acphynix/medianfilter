@@ -104,10 +104,8 @@ RBRNode* TreeSuccessor(RBRTree*,RBRNode*);
 template<int N>
 int full_median(std::vector<RBRTree*> &trees){
 
-  static MHeap medians_lo(N);
-  static MHeap medians_up(N);
-  medians_lo.reset();
-  medians_up.reset();
+  static CorrHeap medians(N);
+  medians.reset();
 
   // verbose = vb;
   // properties of type RBRNode
@@ -126,8 +124,10 @@ int full_median(std::vector<RBRTree*> &trees){
   int ct = N;
 
   // initialize min, max, medians.
-  RBRNode *medmin=0, *medmin_alt=0;
-  RBRNode *medmax=0, *medmax_alt=0;
+  // RBRNode *medmin=0, *medmin_alt=0;
+  // RBRNode *medmax=0, *medmax_alt=0;
+
+  MHNode *medmin, *medmax;
 
   int medmini, medmin_alti;
   int medmaxi, medmax_alti;
@@ -141,8 +141,7 @@ int full_median(std::vector<RBRTree*> &trees){
     p[i][rangelow]  = trees[i]->min;
     p[i][rangehigh] = trees[i]->max;
 
-    medians_lo.min_insert(MHNode{i,p[i][medianlo]->key});
-    medians_up.max_insert(MHNode{i,p[i][medianup]->key});
+    medians.insert(MHNode{i,p[i][medianlo]->key,0}, MHNode{i,p[i][medianup]->key,0});
   }
   // while we have >2 trees...
   int itr = 0;
@@ -191,8 +190,12 @@ int full_median(std::vector<RBRTree*> &trees){
     }
     */
 
-    medmini = medians_lo.head()->k;
-    medmaxi = medians_up.head()->k;
+    medians.minmax_distinct(&medmin, &medmax);
+
+    medmini = medmin->k;
+    medmaxi = medmax->k;
+
+    /*
 
     if(medmini == medmaxi){
       MHNode *low_second, *high_second;
@@ -202,6 +205,8 @@ int full_median(std::vector<RBRTree*> &trees){
         medmaxi = high_second->k;
       }
     }
+
+    */
 
     // dprint debug info.
 
@@ -243,10 +248,10 @@ int full_median(std::vector<RBRTree*> &trees){
       dprint("\n");
     }
 
-    medians_lo.print();
-    printf("\n");
-    medians_up.print();
-    printf("\n");
+    medians.print();
+    // printf("\n");
+    // medians_up.print();
+    // printf("\n");
 
     // delete the same number of elements from both arrays,
     // delete elements e, e > medmax OR e < medmin.
@@ -300,17 +305,24 @@ int full_median(std::vector<RBRTree*> &trees){
     if(v[medmini][alive] && v[medmini][size]<=0){
       v[medmini][alive] = 0;
       --ct;
-      medians_lo.min_replace(MHNode{medmini, INT_MAX});
+      medmin->v       = INT_MAX;
+      medmin->corr->v = INT_MIN;
     }else{
-      medians_lo.min_replace(MHNode{medmini, p[medmini][medianlo]->key});
+      medmin->v       = p[medmini][medianlo]->key;
+      medmin->corr->v = p[medmini][medianup]->key;
     }
     if(v[medmaxi][alive] && v[medmaxi][size]<=0){
       v[medmaxi][alive] = 0;
       --ct;
-      medians_up.max_replace(MHNode{medmaxi, INT_MIN});
+      medmin->v       = INT_MIN;
+      medmin->corr->v = INT_MAX;
     }else{
-      medians_up.max_replace(MHNode{medmaxi, p[medmaxi][medianup]->key});
+      medmax->v       = p[medmaxi][medianlo]->key;
+      medmax->corr->v = p[medmaxi][medianup]->key;
     }
+
+    medians.updateminmax(medmin, medmax);
+
     if(ct <= 0){
       return p[medmini][medianlo]->key;
     }

@@ -8,6 +8,7 @@ enum HeapFunc { MAX, MIN };
 struct MHNode{
   int k;
   int v;
+  MHNode* corr;
 };
 class MHeap{
 public:
@@ -18,12 +19,14 @@ public:
   MHNode *data;  
   MHNode *head();
 
-  void min_insert(MHNode x, int *minToMax, int *maxToMin);
-  void min_replace(MHNode x, int *minToMax, int *maxToMin);
+  void min_update(MHNode *x);
+  void min_insert(MHNode x);
+  void min_replace(MHNode x);
   MHNode *min_second(); 
 
-  void max_insert(MHNode x, int *minToMax, int *maxToMin);
-  void max_replace(MHNode x, int *minToMax, int *maxToMin);
+  void max_update(MHNode *x);
+  void max_insert(MHNode x);
+  void max_replace(MHNode x);
   MHNode *max_second();
   
   void reset();
@@ -41,8 +44,17 @@ public:
   int* maxToMin;
 
   void insert(MHNode vmin, MHNode vmax);
-  void replacemin(MHNode vmin, MHNode vmax);
-  void replacemax(MHNode vmin, MHNode vmax);
+
+  // call update on both min and max.
+  void updateminmax(MHNode *umin, MHNode *umax);
+
+  // gets min and max values from the heap such that
+  // the keys are the min and max, but, if multiples
+  // exist, then the values are distinct.
+  void minmax_distinct(MHNode **rmin, MHNode **rmax);
+  
+  void reset();
+  void print();
 };
 
 
