@@ -2,6 +2,8 @@
 #include "Perreault.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 
 void print(int *data, int *dims){
@@ -19,9 +21,9 @@ void print(int *data, int *dims){
 }
 int main() {
   setbuf(stdout, 0);
-  RBRTree* tree = new RBRTree(49, new RBRNode[49+2+1]);
+  // RBRTree* tree = new RBRTree(49, new RBRNode[49+2+1]);
 
-  tree->insert(4);
+  // tree->insert(4);
   // tree->insert(5);
   // tree->insert(10);
   // tree->insert(1);
@@ -37,20 +39,21 @@ int main() {
 
   // tree->printall();
 
+  srand (time(NULL));
 
   std::vector<RBRTree*> trees;
   for(int i=0;i<7;++i)
   trees.push_back(new RBRTree(7, new RBRNode[7+3]));
   for(int i=0,j=0,k=0;i<7;i++,j+=2,k+=3){
-    trees[0]->insert(i*i);
-    trees[1]->insert(i*j);
-    trees[2]->insert(j*k+1);
-    trees[3]->insert(i*i+2);
-    trees[4]->insert(i*j+3);
-    trees[5]->insert(j*k+4);
-    trees[6]->insert(i*j+5);
+    trees[0]->insert(rand()%20);
+    // trees[1]->insert(i*j);
+    // trees[2]->insert(j*k+1);
+    // trees[3]->insert(i*i+2);
+    // trees[4]->insert(i*j+3);
+    // trees[5]->insert(j*k+4);
+    // trees[6]->insert(i*j+5);
   }
-  // for(int i=0;i<trees.size();i++){
+  // for(int i=0;i<1;i++){
   //   trees[i]->printall();
   //   printf("\n");
   // }
@@ -59,8 +62,9 @@ int main() {
   // trees[2]->printall();
 
   // printf("\n");
-  // printf("trees 0:\n");
-  // trees[0]->print();
+  trees[0]->printall();
+  printf("\n\n");
+  trees[0]->print();
   // RBRNode *b = trees[0]->nth(9);
   // for(int i=0;i<4;++i){
   //   printf("%p - ", b);
@@ -72,12 +76,12 @@ int main() {
 
   // return 1;
 
-  int median = full_median<7>(trees);
+  // int median = full_median<7>(trees);
 
-  int dims[3] = {30,30,30};
+  int dims[3] = {50, 50, 50};
   int fmin[3] = {0,0,0};
-  int fsiz[3] = {30,30,30};
-  int fmax[3] = {30,30,30};
+  int fsiz[3] = {50, 50, 50};
+  int fmax[3] = {50, 50, 50};
   int *data = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
   int * out = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
 
@@ -85,7 +89,8 @@ int main() {
   for(int i=0;i<dims[0];++i){
     for(int j=0;j<dims[1];++j){
       for(int k=0;k<dims[2];++k){
-        data[ind++] = ind-1;
+        data[ind++] = ((((ind*ind + 354)<<(ind%10))*ind*ind+7)*2)%1000 + 10005 ;
+        // printf("%d ",data[ind-1]);
       }
     }
   }
@@ -115,7 +120,7 @@ int main() {
 
   // print(data,dims);
 
-  // median_filter_3D<7>(data, dims, out, fmin, fsiz, fmax);
+  median_filter_3D<5>(data, dims, out, fmin, fsiz, fmax);
 
   printf("done.\n");
   // print(out, dims);

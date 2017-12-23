@@ -59,7 +59,7 @@ public:
   RBRNode();
   int set;
   int key;
-  void* info;
+  int info;
   int red; /* if red=0 then the node is black */
   int count; // number of children;
   RBRNode* left;
@@ -89,6 +89,8 @@ public:
   bool insert(int value);
   bool remove(int index);
   bool replace(int index, int value);
+
+  void verify(const char *str, int mode=0);
 
   RBRNode* median();
   RBRNode* nth(int n);
@@ -142,7 +144,12 @@ int full_median(std::vector<RBRTree*> &trees){
     p[i][rangehigh] = trees[i]->max;
 
     medians.insert(MHNode{i,p[i][medianlo]->key,0}, MHNode{i,p[i][medianup]->key,0});
+    // medians.print();
+    // printf("\n");
   }
+  // for(int i=0;i<N;++i){
+  //   printf("%d <-> %d <-> %d\n",medians.minheap.data[i].v, medians.minheap.data[i].corr->v, medians.minheap.data[i].corr->corr->v);
+  // }
   // while we have >2 trees...
   int itr = 0;
   for(;;){
@@ -189,11 +196,13 @@ int full_median(std::vector<RBRTree*> &trees){
       }
     }
     */
-
+    // dprint("~");
     medians.minmax_distinct(&medmin, &medmax);
 
+    // printf("--\n");
     medmini = medmin->k;
     medmaxi = medmax->k;
+    // printf("--\n");
 
     /*
 
@@ -207,48 +216,68 @@ int full_median(std::vector<RBRTree*> &trees){
     }
 
     */
+    /*
 
     // dprint debug info.
+    ++itr;
+    if(itr>200)verbose=1;
+    if(verbose && itr > 500)exit(0);
+    if(verbose){
+      dprint("\n\nItr: %d\n",itr);
 
-    bool on = false;
-    for(int i=0;i<N;++i){
-      RBRNode *cur = trees[i]->min;
-      char flair = 'v';
-      if (i == medmini && i == medmaxi)dprint(" xxx ");
-      else if(i == medmini)dprint(" <<< ");
-      else if (i==medmaxi)dprint(" >>> ");
-      else dprint("     ");
-      for(;;){
-        if(cur == p[i][rangelow]){
-          on = true;
+      bool on = false;
+      for(int i=0;i<N;++i){
+        RBRNode *cur = trees[i]->min;
+        char flair = 'v';
+        if (i == medmini && i == medmaxi)dprint(" xxx ");
+        else if(i == medmini)dprint(" <<< ");
+        else if (i==medmaxi)dprint(" >>> ");
+        else dprint("     ");
+        dprint(".");
+        int iitr = 12;
+        while(iitr--){
+          if(cur == p[i][rangelow]){
+            on = true;
+          }
+          if(!v[i][alive]){
+            on = false;
+          }
+          if      (cur == p[i][medianup]) flair = '|';
+          else if (cur == p[i][medianlo]) flair = '|';
+          else                    flair=' ';
+          if(on)dprint("%c%5d%c", flair, cur->key, flair);
+          else  dprint("       ");
+          // for(int i=0,j=0;i<100000000;++i)j=j*i;
+          if(cur == p[i][rangehigh]){
+            on = false;
+          }
+          if(cur == trees[i]->max)break;
+          cur = cur->succ(1);
         }
-        if(!v[i][alive]){
-          on = false;
+        if(iitr<=0){
+          dprint("THRESHOLD!\n");
+          trees[i]->print();
+          trees[i]->verify("Th");
         }
-        if      (cur == p[i][medianup]) flair = '|';
-        else if (cur == p[i][medianlo]) flair = '|';
-        else                    flair=' ';
-        if(on)dprint("%c%4d%c", flair, cur->key, flair);
-        else  dprint("      ");
-        // for(int i=0,j=0;i<100000000;++i)j=j*i;
-        if(cur == p[i][rangehigh]){
-          on = false;
-        }
-        if(cur == trees[i]->max)break;
-        cur = cur->succ(1);
+        dprint(".");
+        if (i == medmini && i == medmaxi)dprint(" xxx ");
+        else if(i == medmini)dprint(" <<< ");
+        else if (i==medmaxi)dprint(" >>> ");
+        else dprint("     ");
+
+        if(!v[i][alive])dprint("   DEAD %d", v[i][size]);
+        else dprint("        %d", v[i][size]);
+
+        dprint("\n");
       }
-      if (i == medmini && i == medmaxi)dprint(" xxx ");
-      else if(i == medmini)dprint(" <<< ");
-      else if (i==medmaxi)dprint(" >>> ");
-      else dprint("     ");
-
-      if(!v[i][alive])dprint("   DEAD %d", v[i][size]);
-      else dprint("        %d", v[i][size]);
-
-      dprint("\n");
+      medians.print();
+      printf("\n");
     }
+    dprint("i");
 
-    medians.print();
+    /**/
+
+    // printf("\n");
     // printf("\n");
     // medians_up.print();
     // printf("\n");
@@ -279,15 +308,21 @@ int full_median(std::vector<RBRTree*> &trees){
       }
     }
 
+    // dprint("j");  
     // dprint("v[%d][size] = %d\n",medmini, v[medmini][size]);
     // dprint("v[%d][size] = %d\n",medmaxi, v[medmaxi][size]);
 
     v[medmini][size]  -= cut;
     v[medmaxi][size]  -= cut;
 
-
+    // trees[medmini]->printall();
+    // dprint("\n");
+    // dprint("pred of %d\n",p[medmaxi][rangehigh]?p[medmaxi][rangehigh]->key:0);
+    // trees[medmaxi]->print();
     p[medmini][rangelow]    = p[medmini][rangelow]->succ(cut);
+    // dprint("e");
     p[medmaxi][rangehigh]   = p[medmaxi][rangehigh]->succ(-cut);
+    // dprint("f");
 
     p[medmini][medianlo]    = p[medmini][medianlo]->succ(cut/2  + medadjmin);
     p[medmini][medianup]    = p[medmini][medianlo]->succ(1);
@@ -295,39 +330,57 @@ int full_median(std::vector<RBRTree*> &trees){
     p[medmaxi][medianlo]    = p[medmaxi][medianlo]->succ(-cut/2 + medadjmax);
     p[medmaxi][medianup]    = p[medmaxi][medianlo]->succ(1);
 
-
+    // dprint("k");
     // dprint("move medmin by %d\n", cut/2  + medadjmin);
     // dprint("move medmax by %d\n", -cut/2  + medadjmax);
 
     // dprint("set min median = %d %d\n", p[medmini][medianlo]->key, p[medmini][medianup]->key);
     // dprint("set max median = %d %d\n", p[medmaxi][medianlo]->key, p[medmaxi][medianup]->key);
 
-    if(v[medmini][alive] && v[medmini][size]<=0){
-      v[medmini][alive] = 0;
-      --ct;
-      medmin->v       = INT_MAX;
-      medmin->corr->v = INT_MIN;
-    }else{
-      medmin->v       = p[medmini][medianlo]->key;
-      medmin->corr->v = p[medmini][medianup]->key;
-    }
-    if(v[medmaxi][alive] && v[medmaxi][size]<=0){
-      v[medmaxi][alive] = 0;
-      --ct;
-      medmin->v       = INT_MIN;
-      medmin->corr->v = INT_MAX;
-    }else{
-      medmax->v       = p[medmaxi][medianlo]->key;
-      medmax->corr->v = p[medmaxi][medianup]->key;
-    }
+    int medmin_v, medmin_c;
+    int medmax_v, medmax_c;
 
-    medians.updateminmax(medmin, medmax);
+    // printf("--\n");
+    if(v[medmini][size]<=0){
+      if(v[medmaxi][alive]){
+        --ct;
+        v[medmini][alive] = 0;
+      }
+      medmin_v = INT_MAX-1;
+      medmin_c = INT_MIN+1;
+    }else{
+      medmin_v = p[medmini][medianlo]->key;
+      medmin_c = p[medmini][medianup]->key;
+    }
+    // printf("--\n");
+    if(v[medmaxi][size]<=0){
+      if(v[medmaxi][alive]){
+        --ct;
+        v[medmaxi][alive] = 0;
+      }
+      medmax_v = INT_MIN+1;
+      medmax_c = INT_MAX-1;
+    }else{
+      medmax_v = p[medmaxi][medianup]->key;
+      medmax_c = p[medmaxi][medianlo]->key;
+    }
+    // printf("--\n");
+
+    // dprint("set medmin %d <-> %d\n", medmin_v, medmin_c);
+    // dprint("set medmax %d <-> %d\n", medmax_v, medmax_c);
+    // dprint("~");
+    medians.updateminmax(medmin, medmax, medmin_v, medmin_c, medmax_v, medmax_c);
+    // dprint("!");
+    // printf("--\n");
 
     if(ct <= 0){
+      // dprint("?");
       return p[medmini][medianlo]->key;
     }
-    dprint("\n\n");
+    // dprint("x");
+    // dprint("\n\n");
   }
+  // dprint("v");
   for(int i=0;i<N;++i){
     if( v[i][alive] ){
       return p[i][medianup]->key;

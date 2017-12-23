@@ -29,7 +29,6 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
   int ind = 0;
   for(int z=fmin[2];z<fmin[2]+N;++z){
     ind = 0;
-    verbose = (ind==89999);
     for(int y=fmin[1];y<fsiz[1];++y){
       for(int x=fmin[0];x<fsiz[0];++x){
         if(z == 0)frame[ind] = RBRTree(N, all_nodes);
@@ -107,7 +106,8 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
     // verbose = 0;
 
     // dprint("(%d %d %d %d);",x,y,z,ind);
-    if(++iteration%10 == 0){
+    // if(iteration >= 17670)verbose = 1;
+    if(++iteration%1000 == 0){
       printf("Done: %d %.5f\n", iteration, (float)((float)iteration/total));
       // ++ind;
       // continue;
@@ -115,7 +115,9 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
     // dprint("offset: %d, %d\n",off_x,off_y);
 
     // dprint("calculating median\n");
+    // verbose = 0;
     out[ind] = full_median<N*N>(window);
+    // if(iteration > 9600)verbose = 1;
 
     ind += dir_x;
     x   += dir_x;
@@ -153,12 +155,15 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
 
           int ii = 0;
           while(ii < N*N){
+            // dprint("yo");
             // dprint("(%d, %d) -> %d\n", to_xx, to_yy, to_ind);
             // push the tree down to the next level
             // dprint("add data[%d] to window[%d]\n", fr_ind, to_ind);
             // dprint("set window[%d][%d] = data[%d]\n", to_ind, window[to_ind]->off, fr_ind);
             // vvvv
+            // dprint("ff");
             window[to_ind]->replace(window[to_ind]->off, data[fr_ind]);
+            // dprint("jj");
             window[to_ind]->off += 1;
             if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
             window[to_ind]->pos = depth_z;
@@ -297,6 +302,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
       win_x += dir_x;
       // dprint(".\n");
     }
+    // dprint("VV");
   }
   // dprint("\n");
   free(frame);

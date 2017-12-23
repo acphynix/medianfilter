@@ -20,8 +20,12 @@
 /*  Modifies Input: none */
 /***********************************************************************/
 
+static void verify(RBRNode *tree){
+
+}
+
 static void RBReplace(RBRTree* tree, int index, int value);
-static bool RBTreeInsert(RBRTree*, int key, void* info);
+static bool RBTreeInsert(RBRTree*, int key, int info);
 static RBRNode * RBTreeInsertN(RBRTree*, RBRNode*);
 static void RBTreePrint(RBRTree*);
 static void RBDelete(RBRTree* , RBRNode* );
@@ -35,8 +39,8 @@ static void InorderTreePrint(RBRTree* tree, RBRNode* x);
 
 int verbose = 1;
 inline int dprint(const char *format, ...){
-  // return 0;
-  // if(!verbose)return 0;
+  return 0;
+  if(!verbose)return 0;
   va_list args;
   va_start(args, format);
 
@@ -58,10 +62,12 @@ RBRNode::RBRNode(){
 
 
 RBRNode* RBRNode::succ(int j){
+  static bool v = false;
   RBRNode *n = this;
   RBRNode *nc;
   int c;
   while(n){
+    // dprint("%d ",j);
     if(!j )return n;
     if(j>0){
       c = n->right->count; // entire right subtree
@@ -76,7 +82,7 @@ RBRNode* RBRNode::succ(int j){
           // no way to go higher.
           return NULL;
         }
-        if(n->key >= nc->key){
+        if(n->left == nc){
           j -= 1 + c;
           break;
         }
@@ -87,14 +93,15 @@ RBRNode* RBRNode::succ(int j){
         n = n->left;
         j += n->right->count + 1;
       }else for(;;){
+        // dprint("n v: %p %d\n",n,n->key);
         nc = n;
         n = n->parent;
-        if(n->parent == n->parent->parent){
+        if(n->key == -1){
           // we have hit the root.
           // no way to go higher.
           return NULL;
         }
-        if(n->key <= nc->key){
+        if(n->right == nc){
           j += 1 + c;
           break;
         }
@@ -129,6 +136,7 @@ RBRTree::RBRTree(int size, RBRNode *data) {
   root->key=0;
   root->red=0;
   root->set=1;
+  root->count = 0;
 
   min=NULL;
   max=NULL;
@@ -139,14 +147,15 @@ RBRTree::RBRTree(int size, RBRNode *data) {
 
   this->n = size;
   this->data = (all_nodes+2);
+  for(int i=0;i<n;++i){
+    data[i].set = false;
+  }
 }
 
 void RBRTree::print(){
   for(int i=-2;i<n;++i){
     RBRNode *v =data+i;
-    if(v->set){
-      dprint("%d: (%d) -> %d [%d] -> (%d, %d)\n", i, (v->parent)?(v->parent->key):-1, v->key, v->count, (v->left)?(v->left->key):-1, (v->right)?(v->right->key):-1);
-    }
+    dprint("%c  %3d: (%d) -> %d [%d] -> (%d, %d)\n", (v->set)?' ':'X', i, (v->parent)?(v->parent->key):-1, v->key, v->count, (v->left)?(v->left->key):-1, (v->right)?(v->right->key):-1);
   }
 }
 
@@ -164,6 +173,34 @@ bool RBRTree::remove(int v){
 
 bool RBRTree::replace(int index, int v){
   RBReplace(this, index, v);
+}
+
+void RBRTree::verify(const char *str, int mode){
+  return;
+  // printf("v...");
+  for(int i=0;i<n;++i){
+    if(!data[i].set)continue;
+    if(data[i].count != (data[i].left->count + data[i].right->count + 1)){
+      printf("%s: bad count: %d\n", str, i);
+      verbose = 1;
+      print();
+      printall();
+      printf("\n");
+      exit(0);
+    }
+    if(data[i].count <= 0){
+      printf("%s: count[%d] <= 0\n", str, i);
+      verbose = 1;
+      print();
+      printall();
+      printf("\n");
+      exit(0);
+    }
+    if(mode){
+      // printf("%d = %d + %d + 1\n", data[i].count, data[i].left->count, data[i].right->count);
+    }
+  }
+  // printf("b~\n");
 }
 
 RBRNode* RBRTree::nth(int t){
@@ -245,6 +282,9 @@ void LeftRotate(RBRTree* tree, RBRNode* x) {
   y->count += x->count;
   x->parent=y;
 
+  x->count = 1+x->left->count + x->right->count;
+  y->count = 1+y->left->count + y->right->count;
+
 
 
 #ifdef DEBUG_ASSERT
@@ -305,6 +345,9 @@ void RightRotate(RBRTree* tree, RBRNode* y) {
   x->count += x->right->count;
   y->parent=x;
 
+  y->count = 1+y->left->count + y->right->count;
+  x->count = 1+x->left->count + x->right->count;
+
 #ifdef DEBUG_ASSERT
   Assert(!tree->nil->red,"nil not red in RightRotate");
 #endif
@@ -326,6 +369,9 @@ void RightRotate(RBRTree* tree, RBRNode* y) {
 /***********************************************************************/
 
 void TreeInsertHelp(RBRTree* tree, RBRNode* z) {
+  // dprint("insert %d\n", z->key);
+  // tree->print();
+  // tree->verify("Q", 1);
   /*  This function should only be called by InsertRBTree (see above) */
   RBRNode* x;
   RBRNode* y;
@@ -350,6 +396,10 @@ void TreeInsertHelp(RBRTree* tree, RBRNode* z) {
   } else {
     y->right=z;
   }
+  z->count = 1;
+  z->set = 1;
+  // tree->print();
+  // dprint("\n");
 
 #ifdef DEBUG_ASSERT
   Assert(!tree->nil->red,"nil not red in TreeInsertHelp");
@@ -385,13 +435,14 @@ RBRNode * RBTreeInsertN(RBRTree* tree, RBRNode* x){
     tree->min = x;
   }
 
-  x->set = 1;
   RBRNode * y;
   RBRNode * newNode;
 
+  // tree->verify("P");
   TreeInsertHelp(tree,x);
   newNode=x;
   x->red=1;
+  // tree->verify("O");
   while(x->parent->red) { /* use sentinel instead of checking for root */
     if (x->parent == x->parent->parent->left) {
       y=x->parent->parent->right;
@@ -403,11 +454,15 @@ RBRNode * RBTreeInsertN(RBRTree* tree, RBRNode* x){
       } else {
         if (x == x->parent->right) {
           x=x->parent;
+          // tree->verify("A");
           LeftRotate(tree,x);
+          // tree->verify("B");
         }
         x->parent->red=0;
         x->parent->parent->red=1;
+        // tree->verify("C");
         RightRotate(tree,x->parent->parent);
+        // tree->verify("D");
       } 
     } else { /* case for x->parent == x->parent->parent->right */
       y=x->parent->parent->left;
@@ -419,14 +474,19 @@ RBRNode * RBTreeInsertN(RBRTree* tree, RBRNode* x){
       } else {
         if (x == x->parent->left) {
           x=x->parent;
+          // tree->verify("E");
           RightRotate(tree,x);
+          // tree->verify("F");
         }
         x->parent->red=0;
         x->parent->parent->red=1;
+        // tree->verify("G");
         LeftRotate(tree,x->parent->parent);
+        // tree->verify("H");
       } 
     }
   }
+  // tree->verify("N");
   tree->root->left->red=0;
   return(newNode);
 
@@ -436,7 +496,7 @@ RBRNode * RBTreeInsertN(RBRTree* tree, RBRNode* x){
 #endif
 }
 
-bool RBTreeInsert(RBRTree* tree, int key, void* info) {
+bool RBTreeInsert(RBRTree* tree, int key, int info) {
 
   RBRNode *set = NULL;
   for(int i=0;i<tree->n;++i){
@@ -451,7 +511,9 @@ bool RBTreeInsert(RBRTree* tree, int key, void* info) {
 
   set->key=key;
   set->info=info;
+  // tree->verify("I");
   RBTreeInsertN(tree, set);
+  // tree->verify("J");
   return true;
 }
 
@@ -545,11 +607,11 @@ void InorderTreePrint(RBRTree* tree, RBRNode* x) {
   RBRNode* nil=tree->nil;
   RBRNode* root=tree->root;
   if (x != tree->nil) {
-    dprint("");
+    dprint("(");
     InorderTreePrint(tree,x->left);
-    dprint(" %2d ",x->key);
+    dprint("%d=%2d ",x-tree->data, x->key);
     InorderTreePrint(tree,x->right);
-    dprint("");
+    dprint(")");
   }
 }
 
@@ -748,8 +810,19 @@ void RBDeleteFixUp(RBRTree* tree, RBRNode* x) {
 /***********************************************************************/
 
 void RBDelete(RBRTree* tree, RBRNode* z){
+  // printf("\nremoving element %d = %d\n", (z-tree->data), (z->key));
+  // tree->verify("T00");
+  // tree->printall();
+  // printf("\n");
+  // tree->print();
   z->set = 0;
-  RBRNode* y;
+  RBRNode *r=z;
+  // while(r->parent != r->parent->parent){
+  //   r->count -= 1;
+  //   r = r->parent;
+  // }
+  z->set = 0;
+  RBRNode* y, *yp;
   RBRNode* x;
   RBRNode* nil=tree->nil;
   RBRNode* root=tree->root;
@@ -763,26 +836,43 @@ void RBDelete(RBRTree* tree, RBRNode* z){
 
   y= ((z->left == nil) || (z->right == nil)) ? z : TreeSuccessor(tree,z);
   x= (y->left == nil) ? y->right : y->left;
+
+  for(r=x->parent; r->key != -1; r=r->parent){ // x is moving somewhere else.
+    // printf("at %d\n",r-tree->data);
+    r->count -= x->count;
+  }
+
   if (root == (x->parent = y->parent)) { /* assignment of y->p to x->p is intentional */
     root->left=x;
+    // printf("hello!");
+    root->count = root->left->count + root->right->count + 1;
+    // tree->verify("T1");
   } else {
+    yp = y->parent;
     if (y == y->parent->left) {
-      y->parent->count -= y->parent->left->count;
+      // printf("AAA");
       y->parent->left=x;
-      y->parent->count += y->parent->left->count;
     } else {
-      y->parent->count -= y->parent->right->count;
+      // printf("BBB");
       y->parent->right=x;
-      y->parent->count += y->parent->right->count;
+    }
+    y->count = y->left->count + y->right->count + 1;
+    for(r=y->parent; r->key != -1; r=r->parent){
+      // printf("at %d\n",r-root);
+      r->count = r->left->count + r->right->count + 1;
     }
   }
+  // printf("\n\n");
+  // tree->print();
+  // tree->printall();
+  // printf("\n");
+  // tree->verify("T0");
   if (y != z) { /* y should not be nil in this case */
 
 #ifdef DEBUG_ASSERT
     Assert( (y!=tree->nil),"y is nil in RBDelete\n");
 #endif
     /* y is the node to splice out and x is its child */
-
     if (!(y->red)) RBDeleteFixUp(tree,x);
   
     y->left=z->left;
@@ -795,12 +885,13 @@ void RBDelete(RBRTree* tree, RBRNode* z){
     } else {
       z->parent->right=y;
     }
-    y->count = y->left->count + y->right->count;
-    y->parent->count = y->parent->left->count + y->parent->right->count;
+    y->count = y->left->count + y->right->count + 1;
+    y->parent->count = y->parent->left->count + y->parent->right->count + 1;
   } else {
     if (!(y->red)) RBDeleteFixUp(tree,x);
   }
   
+  // tree->verify("T");
 #ifdef DEBUG_ASSERT
   Assert(!tree->nil->red,"nil not black in RBDelete");
 #endif
@@ -808,9 +899,15 @@ void RBDelete(RBRTree* tree, RBRNode* z){
 
 void RBReplace(RBRTree* tree, int index, int value){
   RBRNode *node = tree->data + index;
+  // tree->verify("M");
+  // dprint("delete");
   RBDelete(tree, node);
+  node->set = 0;
   node->key = value;
+  // tree->verify("K");
+  // dprint("insert");
   RBTreeInsertN(tree, node);
+  // tree->verify("L");
 }
 
 

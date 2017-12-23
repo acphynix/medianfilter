@@ -19,14 +19,12 @@ public:
   MHNode *data;  
   MHNode *head();
 
-  void min_update(MHNode *x);
+  MHNode *min_update(MHNode *x);
   void min_insert(MHNode x);
-  void min_replace(MHNode x);
   MHNode *min_second(); 
 
-  void max_update(MHNode *x);
+  MHNode *max_update(MHNode *x);
   void max_insert(MHNode x);
-  void max_replace(MHNode x);
   MHNode *max_second();
   
   void reset();
@@ -40,13 +38,10 @@ public:
   MHeap minheap;
   MHeap maxheap;
 
-  int* minToMax;
-  int* maxToMin;
-
   void insert(MHNode vmin, MHNode vmax);
 
   // call update on both min and max.
-  void updateminmax(MHNode *umin, MHNode *umax);
+  void updateminmax(MHNode *umin, MHNode *umax, int minv, int minc, int maxv, int maxc);
 
   // gets min and max values from the heap such that
   // the keys are the min and max, but, if multiples
