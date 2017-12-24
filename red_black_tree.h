@@ -285,8 +285,8 @@ int full_median(std::vector<RBRTree*> &trees){
     // delete the same number of elements from both arrays,
     // delete elements e, e > medmax OR e < medmin.
 
-    RBRNode* left  = p[medmini][rangelow];
-    RBRNode* right = p[medmaxi][rangehigh];
+    // RBRNode* left  = p[medmini][rangelow];
+    // RBRNode* right = p[medmaxi][rangehigh];
 
     int cut = min((v[medmini][size])/2, (v[medmaxi][size])/2);
     cut = max(cut, 1);
@@ -319,10 +319,12 @@ int full_median(std::vector<RBRTree*> &trees){
     // dprint("\n");
     // dprint("pred of %d\n",p[medmaxi][rangehigh]?p[medmaxi][rangehigh]->key:0);
     // trees[medmaxi]->print();
-    p[medmini][rangelow]    = p[medmini][rangelow]->succ(cut);
     // dprint("e");
-    p[medmaxi][rangehigh]   = p[medmaxi][rangehigh]->succ(-cut);
     // dprint("f");
+
+    // ENABLE FOR VERBOSE OUTPUT
+    // p[medmini][rangelow]    = p[medmini][rangelow]->succ(cut);
+    // p[medmaxi][rangehigh]   = p[medmaxi][rangehigh]->succ(-cut);
 
     p[medmini][medianlo]    = p[medmini][medianlo]->succ(cut/2  + medadjmin);
     p[medmini][medianup]    = p[medmini][medianlo]->succ(1);

@@ -1,3 +1,29 @@
 Making all of the RBRTrees exist in contiguous memory:
   . reduced time by 3 seconds on a 100x100x100 grid.
 
+Abstract
+Introduction
+  . Median fiter is useful.
+  . Median filter is inefficient.
+  . Time complexity of naive algorithm
+  . Use of histograms.
+  . Time complexity tradeoff, bitdepth vs radius.
+  . Huang's algorithm.
+  . Perreault's algorithm.
+The Algorithm
+  . Similar to Perreault's algorithm, but works with higher bit depths.
+  . We use the same space-traversal strategy that Perreault uses, but
+    with trees.
+  . Fact: the median of many sorted lists can be found efficiently.
+    - Proof.
+  . Initialize median filter (show diagram)
+  . Traversal/wrapping strategy
+  * Optimization: wrapping of indices
+  * Median calculation algorithm.
+    1. Find the medians of each of the RBRTrees in lg(n) time.
+    2. Algorithm to find median.
+    > Instrumented heap
+      . 
+Results
+Discussion
+Conclusion
