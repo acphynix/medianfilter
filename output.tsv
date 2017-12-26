@@ -1,0 +1,312 @@
+
+
+go!
+bruteforce	time,total	12.817	12.817
+
+
+go!
+huang	time,total	15.005	30.884
+
+
+go!
+huangQS	time,total	6.967	6.967
+
+
+go!
+perreault	time,total	15.000	18.037
+
+
+go!
+perreaultQS	time,total	10.577	10.577
+
+
+go!
+bruteforce	time,total	10.275	10.275
+
+
+go!
+huang	time,total	15.000	26.434
+
+
+go!
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	10.246	10.246
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	11.698	11.698
+
+
+go!
+huang	window,time,total	1	15.001	31.643
+
+
+go!
+huangQS	window,time,total	1	6.310	6.310
+
+
+go!
+perreault	window,time,total	1	11.216	11.216
+
+
+go!
+perreaultQS	window,time,total	1	8.357	8.357
+
+
+go!
+bruteforce	window,time,total	1	11.672	11.672
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	13.816	13.816
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	10.084	10.084
+
+
+go!
+huang	window,time,total	1	15.004	25.423
+
+
+go!
+huangQS	window,time,total	1	8.500	8.500
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	9.253	9.253
+
+
+go!
+huang	window,time,total	1	15.003	23.526
+
+
+go!
+huangQS	window,time,total	1	5.972	5.972
+
+
+go!
+perreault	window,time,total	1	10.341	10.341
+
+
+go!
+perreaultQS	window,time,total	1	7.893	7.893
+
+
+go!
+bruteforce	window,time,total	2	15.007	32.781
+
+
+go!
+huang	window,time,total	2	15.002	76.130
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	1	8.935	8.935
+
+
+go!
+huang	window,time,total	1	15.000	22.813
+
+
+go!
+huangQS	window,time,total	1	5.885	5.885
+
+
+go!
+perreault	window,time,total	1	10.334	10.334
+
+
+go!
+perreaultQS	window,time,total	1	7.896	7.896
+
+
+go!
+bruteforce	window,time,total	2	15.001	33.058
+
+
+go!
+huang	window,time,total	2	15.001	75.132
+
+
+go!
+huangQS	window,time,total	2	15.001	18.984
+
+
+go!
+perreault	window,time,total	2	15.001	33.660
+
+
+go!
+perreaultQS	window,time,total	2	15.000	34.912
+
+
+go!
+bruteforce	window,time,total	3	15.002	87.087
+
+
+go!
+huang	window,time,total	3	15.004	157.898
+
+
+go!
+huangQS	window,time,total	3	15.001	40.093
+
+
+go!
+perreault	window,time,total	3	15.002	55.173
+
+
+go!
+perreaultQS	window,time,total	3	15.003	77.841
+
+
+go!
+bruteforce	window,time,total	4	15.007	167.614
+
+
+go!
+huang	window,time,total	4	15.012	271.652
+
+
+go!
+huangQS	window,time,total	4	15.003	72.750
+
+
+go!
+perreault	window,time,total	4	15.002	81.947
+
+
+go!
+perreaultQS	window,time,total	4	15.002	165.153
+
+
+go!
+bruteforce	window,time,total	5	15.008	300.927
+
+
+go!
+huang	window,time,total	5	15.011	465.896
+
+
+go!
+huangQS	window,time,total	5	15.001	120.494
+
+
+go!
+perreault	window,time,total	5	15.003	112.158
+
+
+go!
+
+
+go!
+
+
+go!
+bruteforce	window,time,total	3	30.001	80.144
+
+
+go!
+bruteforce	window,time,total	1	8.649	8.649
+
+
+go!
+huang	window,time,total	1	22.870	22.870
+
+
+go!
+huangQS	window,time,total	1	5.876	5.876
+
+
+go!
+perreault	window,time,total	1	9.542	9.542
+
+
+go!
+perreaultQS	window,time,total	1	7.760	7.760
+
+
+go!
+bruteforce	window,time,total	2	30.000	31.889
+
+
+go!
+huang	window,time,total	2	30.003	72.820
+
+
+go!
+huangQS	window,time,total	2	19.236	19.236
+
+
+go!
+perreault	window,time,total	2	29.629	29.629
+
+
+go!
+perreaultQS	window,time,total	2	29.815	29.815
+
+
+go!
+
+
+go!
+perreault	window,time,total	1	9.789	9.789
+
+
+go!
+perreault	window,time,total	1	9.867	9.867
+
+
+go!
+
+
+go!
+perreault	window,time,total	1	10.327	10.327
+
+
+go!
+perreault	window,time,total	1	9.526	9.526
+
+
+go!
+bruteforce	window,time,total	1	8.733	8.733
+
+
+go!
+
+
+go!
+perreault	window,time,total	1	9.401	9.401
+
+
+go!
+result: 1732757536
+done.
+
+
+go!
+perreault	window,time,total	1	9.886	9.886
+
+
+go!

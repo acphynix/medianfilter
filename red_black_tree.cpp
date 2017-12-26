@@ -171,6 +171,10 @@ bool RBRTree::remove(int v){
   RBDelete(this, (data+v));
 }
 
+bool RBRTree::set(int index, int v){
+  data[index].key = v;
+  return true;
+}
 bool RBRTree::replace(int index, int v){
   RBReplace(this, index, v);
 }
@@ -899,15 +903,10 @@ void RBDelete(RBRTree* tree, RBRNode* z){
 
 void RBReplace(RBRTree* tree, int index, int value){
   RBRNode *node = tree->data + index;
-  // tree->verify("M");
-  // dprint("delete");
   RBDelete(tree, node);
   node->set = 0;
   node->key = value;
-  // tree->verify("K");
-  // dprint("insert");
   RBTreeInsertN(tree, node);
-  // tree->verify("L");
 }
 
 

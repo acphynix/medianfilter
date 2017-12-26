@@ -6,6 +6,7 @@
 #endif
 #include "misc.h"
 #include "stack.h"
+#include "quickselect.h"
 
 #include "minmaxheap.h"
 #include <limits.h>
@@ -89,6 +90,7 @@ public:
   bool insert(int value);
   bool remove(int index);
   bool replace(int index, int value);
+  bool set(int index, int value);
 
   void verify(const char *str, int mode=0);
 
@@ -103,9 +105,23 @@ public:
 RBRNode* TreePredecessor(RBRTree*,RBRNode*);
 RBRNode* TreeSuccessor(RBRTree*,RBRNode*);
 
+
+template<int N>
+int full_median2(std::vector<RBRTree*> &trees){
+  static int values[N*N*N];
+  int NN = N*N;
+  int NNN = NN*N;
+  int ind = 0;
+  for(int i=0;i<NN; ++i){
+    for(int j=0;j<N;++j){
+      values[ind] = trees[i]->data[j].key;
+      ++ind;
+    }
+  }
+  return quick_select(values, NNN);
+}
 template<int N>
 int full_median(std::vector<RBRTree*> &trees){
-
   static CorrHeap medians(N);
   medians.reset();
 

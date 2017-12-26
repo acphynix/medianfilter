@@ -22,45 +22,21 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
   // implement Perreault's algorithm using trees.
   const int N = R*2+1;
   RBRTree *frame = (RBRTree*)malloc(fsiz[0]*fsiz[1]*sizeof(RBRTree));
-  std::vector<RBRTree*> window;
+  RBRTree window(N*N*N, new RBRNode[N*N*N]);
 
-  RBRNode *all_nodes = new RBRNode[fsiz[0]*fsiz[1]*(N+2+1)];
-
-  // 1. initialize histograms for entire frame.
+  // 1. initialize window at origin corner.
   int ind = 0;
   for(int z=fmin[2];z<fmin[2]+N;++z){
     ind = 0;
-    for(int y=fmin[1];y<fsiz[1];++y){
-      for(int x=fmin[0];x<fsiz[0];++x){
-        if(z == 0)frame[ind] = RBRTree(N, all_nodes);
+    for(int y=fmin[1];y<fmin[1]+N;++y){
+      for(int x=fmin[0];x<fmin[0]+N;++x){
         int v = data[z*dims[0]*dims[1] + y*dims[0] + x];
-        frame[ind].insert(v);
-        ++ind;
-        all_nodes += N+3;
-        // dprint("\n");
+        window.insert(v);
       }
     }
-    // dprint("____\n");
   }
   verbose = 0;
-  
-  // 2. initialize histograms for window starting at top left corner.
-  ind =0;
-  for(int y=0;y<N;++y){
-    for(int x=0;x<N;++x){
-      window.push_back(frame+ind);
-      ++ind;
-    }
-    ind += fsiz[0]-N;
-  }
-
-  // dprint("\n");
-  // for(int i=0;i<N*N;++i){
-    // dprint(">>%d: ",i);
-    // window[i]->printall();
-    // dprint("\n");
-  // }
-  
+    
   // current point to be medianed
   int x = fmin[0] + R;
   int y = fmin[1] + R;
@@ -93,7 +69,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
   double sec;
 
   for(;;){
-    // dprint("(%d %d %d %d);",x,y,z,ind);
+    // printf("(%d %d %d %d);",x,y,z,ind);
     // for(int j=0;j<N*N;++j){
     //   window[j]->printall();
     // }
@@ -127,10 +103,11 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
       sec =  double(spec.tv_sec) + (spec.tv_nsec)/1000000000.0;
       sec -= sec_start;
       if(sec > TIMELIMIT || iteration+1 == total){
+        // printf("Finished HUANG\n");
         // printf("Done %d = %.8f\n", iteration, p);
         // printf("Took %.3fs\n", sec);
         float e = (1.f/p)*sec;
-        printf("perreault\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
+        printf("huang\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
         // printf("Total Time: %.3f seconds\n", e);
         exit(0);
       }
@@ -139,7 +116,8 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
 
     // dprint("calculating median\n");
     // verbose = 0;
-    out[ind] = full_median<N>(window);
+    // printf("Med\n");
+    out[ind] = window.median()->key;
     // if(iteration > 9600)verbose = 1;
 
     ind += dir_x;
@@ -153,7 +131,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
           // wrap x, y, z;
           break;
         }else{
-          // dprint("Y\n");
+          // printf("Y\n");
           // wrap x, y; slide along z and prepare for next line.
           ind = ind + (fmax[0]*fmax[1]) - dir_x;
           x  -= dir_x;
@@ -166,7 +144,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
 
           // move window down by updating each
           // of our trees.
-          int to_ind, to_xx=off_x, to_yy=off_y;
+          int to_ind, to_xx=off_x, to_yy=off_y, to_zz = off_z;
           int fr_ind=ind-R-(R*dims[0])+(R*dims[0]*dims[1]), fr_xx=0, fr_yy=0;
           
           if(to_xx < 0)to_xx += N;
@@ -174,22 +152,18 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
           if(to_yy < 0)to_yy += N;
           if(to_yy >=N)to_yy -= N;
           
-          to_ind = to_xx + N*to_yy;
+          to_ind = to_xx + N*to_yy + N*N*to_zz;
 
           int ii = 0;
           while(ii < N*N){
-            // dprint("yo");
+            // printf("yo");
             // dprint("(%d, %d) -> %d\n", to_xx, to_yy, to_ind);
             // push the tree down to the next level
             // dprint("add data[%d] to window[%d]\n", fr_ind, to_ind);
             // dprint("set window[%d][%d] = data[%d]\n", to_ind, window[to_ind]->off, fr_ind);
             // vvvv
             // dprint("ff");
-            window[to_ind]->replace(window[to_ind]->off, data[fr_ind]);
-            // dprint("jj");
-            window[to_ind]->off += 1;
-            if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
-            window[to_ind]->pos = depth_z;
+            window.replace(to_ind, data[fr_ind]);
 
             // update indices
             ++to_ind;
@@ -222,9 +196,14 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
             // dprint("done\n");
             ++ii;
           }
+
+          // increment z offset.
+          ++off_z;
+          if(off_z==N)off_z=0;
+          if(off_z<0)off_z+=N;
         }
       }else{
-        // dprint("X\n");
+        // printf("X %d\n",dir_y);
         // wrap x; slide along y and prepare for next line.
         ind = ind + ((dir_y==1)?fmax[0]:-fmax[0]) - dir_x;
         x  -= dir_x;
@@ -234,46 +213,52 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
         // trees along the Y axis of frame and put
         // them in window, being aware of the x and
         // y offsets and y_dir.
-        int i=0, xx=0, yy=0, zz=0;
-        int fr_ind = (win_y + ((dir_y==1)?N:-1))*fsiz[1] + win_x;
-        int to_ind = (off_y + ((dir_y==1)?(0):(-1)) )*N + off_x;
-        if(to_ind>=N*N)to_ind -= N*N;
+
+        int fr_xx=0,     fr_zz=0     ;
+        int to_xx=off_x, to_zz=off_z, to_yy= off_y+(dir_y==1)?(0):(-1);
+
+        if(to_yy<0)to_yy+=N;
+        if(to_yy>=N)to_yy-=N;
+
+        int fr_ind = (win_y  + ((dir_y==1)?(N):(-1)) )*fsiz[1] + win_x + depth_z*dims[0]*dims[1];
+        int to_ind = to_yy*N + off_x + off_z*N*N;
+
+        // printf("to: %d %d %d %d\n", off_x, off_y, off_z, to_ind);
+
+
+        if(to_ind>=N*N*N)to_ind -= N*N;
         if(to_ind<0)to_ind += N*N;
-        int to_xx  = off_x;
 
-        if(to_xx < 0)to_xx += N;
-        if(to_xx >=N)to_xx -= N;
-
-        xx = x - R;
-        yy = y + ((dir_y==1)?R:-R);
-        zz = z + R;
-
-        for(i=0;i<N;++i){
-          
+        for(int i=0;i<N*N;++i){
           // dprint("set window[%d] = frame[%d]\n",to_ind, fr_ind);
-          // vvvv
-          window[to_ind] = (frame+fr_ind);
-          
-          // push the tree down to the next level
-          // if it is not already in sync.
-          
-          if(window[to_ind]->pos != depth_z){
-            int next = zz*(dims[0]*dims[1]) + yy*(dims[0]) + (x - R + i);
-            // dprint("window[%d]->replace(%d,%d);\n",to_ind,window[to_ind]->off, data[next]);
-            window[to_ind]->replace(window[to_ind]->off, data[next]);
-            window[to_ind]->off += 1;
-            if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
-            window[to_ind]->pos = depth_z;
-          }
+          // printf("%d %d %d\n", to_xx, to_zz, to_ind);
+          window.replace(to_ind, data[fr_ind]);
 
+          ++fr_xx;
+          ++to_xx;
           fr_ind += 1;
           to_ind += 1;
-          to_xx  += 1;
+
+          // wrap data array input.
+          if(fr_xx == N){
+            to_ind += N*N;
+            fr_ind -= dims[0];
+            fr_ind += dims[0]*dims[1];
+            fr_xx = 0;
+            to_zz += 1;
+            ++fr_zz;
+          }
+          // wrap offsets.
           if(to_xx >= N){
-            to_xx  -= N;
+            to_xx = 0;
             to_ind -= N;
           }
+          if(to_zz >= N){
+            to_zz = 0;
+            to_ind -= N*N*N;
+          }
         }
+
         // dprint("xx\n");
         off_y += dir_y;
         if(off_y==N)off_y=0;
@@ -281,43 +266,60 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
         win_y += dir_y;
       }
     }else{
-      // dprint("C %d\n",dir_x);
+      // printf("C %d\n",dir_x);
       // dprint("win: %d %d\n",win_x, win_y);
       // no wrap
-      // simple x stutterstep. take the next N
-      // trees of frame and put them in window,
-      // being aware of the values of the x and
-      // y offsets and x_dir.
+      // simple x stutterstep. take the next N*N 
+      // elements and put them in the window,
+      // being aware of the values of the x, y and
+      // z offsets and x_dir.
       // dprint("\n");
-      int i=0, xx=0, yy=0, zz=0;
-      int fr_ind = win_y*fsiz[0] + win_x + ((dir_x==1)?(N):(-1));
-      int to_ind = off_y*N       + off_x + ((dir_x==1)?(0):(-1));
 
-      if(to_ind>=N*N)to_ind -= N*N;
+      // printf("off: %d %d %d\n", off_x, off_y, off_z);
+
+      int fr_yy=0, fr_zz=0;
+      int to_xx=off_x + ((dir_x==1)?(0):(-1)), to_yy=off_y, to_zz=off_z;
+      if(to_xx<0)to_xx+=N;
+      if(to_xx>=N)to_xx-=N;
+
+      int fr_ind = win_y*fsiz[0] + win_x + ((dir_x==1)?(N):(-1)) + depth_z*dims[0]*dims[1];
+      int to_ind = off_y*N       + to_xx + off_z*N*N;
+
+      // printf("ind %d %d %d %d\n", off_x,off_y,off_z,to_ind);
+
+      if(to_ind>=N*N*N)to_ind -= N*N;
       if(to_ind<0)to_ind += N*N;
 
-      xx = x + ((dir_x==1)?R:-R);
-      yy = y - R;
-      zz = z + R;
-
-      for(i=0;i<N;++i){
-        // dprint("set window[%d] = frame[%d]\n",to_ind, fr_ind);
-        window[to_ind] = (frame+fr_ind);
-
-        // push the tree down to the next level
-        // if it is not already in sync.
-        if(window[to_ind]->pos != depth_z){
-          int next = zz*(dims[0]*dims[1]) + (y-R+i)*(dims[0]) + xx;
-          window[to_ind]->replace(window[to_ind]->off, data[next]);
-          window[to_ind]->off += 1;
-          if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
-          window[to_ind]->pos = depth_z;
-        }
-
-        fr_ind += fsiz[0];
+      for(int i=0;i<N*N;++i){
+        // printf("%d %d %d\n", to_yy, to_zz, to_ind);
+        // printf("set window[%d] = frame[%d]\n",to_ind, fr_ind);
+        window.replace(to_ind, data[fr_ind]);
+        ++fr_yy;
+        ++to_yy;
+        fr_ind += dims[0];
         to_ind += N;
-        if(to_ind >= N*N)to_ind -= N*N;
+
+        // wrap data array input.
+        if(fr_yy == N){
+          to_ind += N*N;
+          to_zz += 1;
+
+          fr_ind -= dims[0]*N;
+          fr_ind += dims[0]*dims[1];
+          fr_yy = 0;
+          ++fr_zz;
+        }
+        // wrap offsets.
+        if(to_yy >= N){
+          to_yy = 0;
+          to_ind -= N*N;
+        }
+        if(to_zz >= N){
+          to_zz = 0;
+          to_ind -= N*N*N;
+        }
       }
+
       off_x += dir_x;
       if(off_x==N)off_x=0;
       if(off_x<0)off_x+=N;
@@ -325,6 +327,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
       win_x += dir_x;
       // dprint(".\n");
     }
+    // printf("P\n");
     // dprint("VV");
   }
   // dprint("\n");

@@ -130,7 +130,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
         // printf("Done %d = %.8f\n", iteration, p);
         // printf("Took %.3fs\n", sec);
         float e = (1.f/p)*sec;
-        printf("perreault\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
+        printf("perreaultQS\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
         // printf("Total Time: %.3f seconds\n", e);
         exit(0);
       }
@@ -139,7 +139,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
 
     // dprint("calculating median\n");
     // verbose = 0;
-    out[ind] = full_median<N>(window);
+    out[ind] = full_median2<N>(window);
     // if(iteration > 9600)verbose = 1;
 
     ind += dir_x;
@@ -185,7 +185,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
             // dprint("set window[%d][%d] = data[%d]\n", to_ind, window[to_ind]->off, fr_ind);
             // vvvv
             // dprint("ff");
-            window[to_ind]->replace(window[to_ind]->off, data[fr_ind]);
+            window[to_ind]->set(window[to_ind]->off, data[fr_ind]);
             // dprint("jj");
             window[to_ind]->off += 1;
             if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
@@ -259,8 +259,8 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
           
           if(window[to_ind]->pos != depth_z){
             int next = zz*(dims[0]*dims[1]) + yy*(dims[0]) + (x - R + i);
-            // dprint("window[%d]->replace(%d,%d);\n",to_ind,window[to_ind]->off, data[next]);
-            window[to_ind]->replace(window[to_ind]->off, data[next]);
+            // dprint("window[%d]->set(%d,%d);\n",to_ind,window[to_ind]->off, data[next]);
+            window[to_ind]->set(window[to_ind]->off, data[next]);
             window[to_ind]->off += 1;
             if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
             window[to_ind]->pos = depth_z;
@@ -308,7 +308,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
         // if it is not already in sync.
         if(window[to_ind]->pos != depth_z){
           int next = zz*(dims[0]*dims[1]) + (y-R+i)*(dims[0]) + xx;
-          window[to_ind]->replace(window[to_ind]->off, data[next]);
+          window[to_ind]->set(window[to_ind]->off, data[next]);
           window[to_ind]->off += 1;
           if(window[to_ind]->off >= N)window[to_ind]->off = 0; 
           window[to_ind]->pos = depth_z;
