@@ -132,7 +132,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
         float e = (1.f/p)*sec;
         printf("perreaultQS\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
         // printf("Total Time: %.3f seconds\n", e);
-        exit(0);
+        // exit(0);
       }
     }
     // dprint("offset: %d, %d\n",off_x,off_y);

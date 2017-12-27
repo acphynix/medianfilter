@@ -61,7 +61,7 @@ void brute_force(int *data, int *dims, int *out, int R){
             float e = (1.f/p)*sec;
             printf("bruteforce\twindow,time,total\t%d\t%.3f\t%.3f\n",WINDOW_SIZE,sec,e);
             // printf("Total Time: %.3f seconds\n", e);
-            exit(0);
+            // exit(0);
           }
         }
         int i=0;
@@ -147,10 +147,10 @@ int main(int argc, char** argv) {
 
   // int median = full_median<7>(trees);
 
-  int dims[3] = {496, 258, 190};
+  int dims[3] = {496,258,190};
   int fmin[3] = {0,0,0};
-  int fsiz[3] = {496, 258, 190};
-  int fmax[3] = {496, 258, 190};
+  int fsiz[3] = {496,258,190};
+  int fmax[3] = {496,258,190};
   int *data = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
   int * out = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
 

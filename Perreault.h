@@ -139,7 +139,7 @@ void median_filter_3D(int *data, int *dims, int *out, int *fmin, int *fsiz, int 
 
     // dprint("calculating median\n");
     // verbose = 0;
-    out[ind] = full_median<N>(window);
+    out[ind] = full_median<N*N>(window);
     // if(iteration > 9600)verbose = 1;
 
     ind += dir_x;
