@@ -7,6 +7,8 @@
 #include "PerreaultQS.h"
 #elif HUANGQS
 #include "HuangQS.h"
+#elif HUANGMH
+#include "HuangMH.h"
 #endif
 #include <stdio.h>
 #include <ctype.h>
@@ -131,9 +133,9 @@ int main(int argc, char** argv) {
   // trees[2]->printall();
 
   // printf("\n");
-  trees[0]->printall();
+  // trees[0]->printall();
   printf("\n\n");
-  trees[0]->print();
+  // trees[0]->print();
   // RBRNode *b = trees[0]->nth(9);
   // for(int i=0;i<4;++i){
   //   printf("%p - ", b);
@@ -147,10 +149,10 @@ int main(int argc, char** argv) {
 
   // int median = full_median<7>(trees);
 
-  int dims[3] = {496,258,190};
-  int fmin[3] = {0,0,0};
-  int fsiz[3] = {496,258,190};
-  int fmax[3] = {496,258,190};
+  int dims[3] = {496, 258, 190};
+  int fmin[3] = {0, 0, 0};
+  int fsiz[3] = {496, 258, 190};
+  int fmax[3] = {496, 258, 190};
   int *data = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
   int * out = (int*)malloc(dims[0]*dims[1]*dims[2]*sizeof(int));
 
@@ -159,6 +161,7 @@ int main(int argc, char** argv) {
     for(int j=0;j<dims[1];++j){
       for(int k=0;k<dims[2];++k){
         int v = ((((ind*ind + 354)<<(ind%10))*ind*ind+7)*2) % 100 + 101;
+        // v = ind;
         data[ind++] = v;
         // printf("%d ",v);
       }
